@@ -252,6 +252,43 @@ class CoinCollectorGame extends Game {
       });
     }
 
+    // Fullscreen Toggle Logic
+    const fsBtn = document.getElementById('fullscreen-toggle');
+    if (fsBtn) {
+      const updateScale = () => {
+        const scaleWrapper = document.getElementById('scale-wrapper');
+        if (document.fullscreenElement) {
+          const cw = document.querySelector('.canvas-wrapper');
+          const rect = cw.getBoundingClientRect();
+          // Scale based on available width/height (leaving a tiny 2% margin)
+          const scale = Math.min(rect.width / 640, rect.height / 480) * 0.98;
+          scaleWrapper.style.transform = `scale(${scale})`;
+        } else {
+          scaleWrapper.style.transform = 'scale(1)';
+        }
+      };
+
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.querySelector('.game-container').requestFullscreen().catch(err => {
+            console.log(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+        fsBtn.blur();
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        const isFS = !!document.fullscreenElement;
+        fsBtn.textContent = isFS ? '⛶ Salir Fullscreen' : '⛶ Pantalla Completa';
+        fsBtn.classList.toggle('active', isFS);
+        setTimeout(updateScale, 50); // Let CSS layout apply before measuring
+      });
+      
+      window.addEventListener('resize', updateScale);
+    }
+
     // Setup Sprite DOM layer for Billboarding
     const spriteLayer = document.getElementById('sprite-layer');
     spriteLayer.innerHTML = '';
@@ -267,7 +304,7 @@ class CoinCollectorGame extends Game {
             el.className = 'sprite tree-sprite';
             el.style.backgroundPosition = `-${(tile-1)*64}px 0`;
             spriteLayer.appendChild(el);
-            this.#sprites.push({ el, x: c * 64, y: r * 64 });
+            this.#sprites.push({ el, x: c * 64, y: r * 64 - 9 });
           }
         }
       }
@@ -307,7 +344,7 @@ class CoinCollectorGame extends Game {
     for (const s of this.#sprites) {
       const screenX = s.x - cx;
       const screenY = s.y - cy;
-      s.el.style.transform = `translate(${screenX}px, ${screenY}px) var(--sprite-rot)`;
+      s.el.style.transform = `translate(${screenX}px, ${screenY}px) var(--sprite-rot) scale(0.82)`;
       s.el.style.zIndex = Math.floor(s.y);
     }
 
@@ -337,15 +374,29 @@ class CoinCollectorGame extends Game {
     for (let c = sc; c <= ec; c++) {
       for (let r = sr; r <= er; r++) {
         const tile = map.getTile(layer, c, r);
-        if (!tile || map.SOLID_TILES.has(tile)) continue;
+        if (!tile) continue;
 
         const bx = Math.round((c - sc) * ts + ox);
         const by = Math.round((r - sr) * ts + oy);
 
+        const isSolid = map.SOLID_TILES.has(tile);
+        const drawTile = isSolid ? 1 : tile;
+
         ctx.drawImage(this.#tileAtlas,
-          (tile - 1) * ts, 0, ts, ts,
+          (drawTile - 1) * ts, 0, ts, ts,
           bx, by, ts, ts,
         );
+
+        if (isSolid) {
+          // Ground shadow ellipse under tree
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle   = '#1a3a10';
+          ctx.beginPath();
+          ctx.ellipse(bx + ts / 2, by + ts * 0.82, ts * 0.36, ts * 0.1, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
       }
     }
   }

@@ -19,12 +19,19 @@
     <div class="game-container">
         <div class="ui-panel">
             <span id="score-display"><span class="coin-icon">💰</span> 0 / 10</span>
-            <button id="mode7-toggle" class="mode7-btn">Mode 7: OFF</button>
+            <div>
+                <button id="mode7-toggle" class="mode7-btn">Mode 7: OFF</button>
+                <button id="fullscreen-toggle" class="mode7-btn">⛶ Pantalla Completa</button>
+            </div>
         </div>
-        <div class="canvas-wrapper" style="position: relative;">
-            <div id="world-plane" class="world-plane">
-                <canvas id="demo" width="640" height="480"></canvas>
-                <div id="sprite-layer"></div>
+        <div class="canvas-wrapper">
+            <div id="scale-wrapper" style="transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); transform-origin: center;">
+                <div class="viewport">
+                    <div id="world-plane" class="world-plane">
+                        <canvas id="demo" width="640" height="480"></canvas>
+                        <div id="sprite-layer"></div>
+                    </div>
+                </div>
             </div>
             
             <div id="victory-overlay" class="victory-overlay" style="display: none;">
