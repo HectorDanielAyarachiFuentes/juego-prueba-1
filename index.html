@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <title>Coin Collector Game</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="styles.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="common.js"></script>
+    <script src="game.js"></script>
+</head>
+<body>
+
+<header class="main-header">
+    <h1>Coin Collector Maze</h1>
+    <p class="subtitle">Use arrow keys to move. Collect all coins!</p>
+</header>
+
+<div class="main-wrapper">
+    <div class="game-container">
+        <div class="ui-panel">
+            <span id="score-display"><span class="coin-icon">💰</span> 0 / 10</span>
+            <button id="mode7-toggle" class="mode7-btn">Mode 7: OFF</button>
+        </div>
+        <div class="canvas-wrapper" style="position: relative;">
+            <div id="world-plane" class="world-plane">
+                <canvas id="demo" width="640" height="480"></canvas>
+                <div id="sprite-layer"></div>
+            </div>
+            
+            <div id="victory-overlay" class="victory-overlay" style="display: none;">
+                <div class="victory-content">
+                    <h2>Level Complete!</h2>
+                    <p>You've collected all the coins.</p>
+                    <button onclick="location.reload()" class="play-again-btn">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>A fun tilemap game built from examples.</p>
+    </footer>
+</div>
+
+</body>
+</html>
