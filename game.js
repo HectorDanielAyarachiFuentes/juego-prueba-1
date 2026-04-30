@@ -123,8 +123,9 @@ class Hero {
     this.screenX = 0;
     this.screenY = 0;
     this.speed = 256; // px per second
-    this.image = loader.getImage('hero');
-    this.spriteData = loader.getJSON('hero-json');
+    this.spriteDataWalk = loader.getJSON('hero-json');
+    this.spriteDataIdle = loader.getJSON('hero-idle-json');
+    this.spriteData = this.spriteDataWalk; // start with walk to trigger switch
     this.animTime = 0;
     this.currentFrame = 0;
     this.isMoving = false;
@@ -140,14 +141,26 @@ class Hero {
     if (dirx < 0) this.flipX = false;
     else if (dirx > 0) this.flipX = true;
 
-    if (this.isMoving) {
-      this.animTime += delta;
-      if (this.animTime > 0.05) { // 20 fps
-        this.animTime = 0;
-        this.currentFrame = (this.currentFrame + 1) % 36; // 36 frames
-      }
-    } else {
+    const targetData = this.isMoving ? this.spriteDataWalk : this.spriteDataIdle;
+    if (this.spriteData !== targetData) {
+      this.spriteData = targetData;
       this.currentFrame = 0;
+      this.animTime = 0;
+      if (this.el) {
+        this.el.style.backgroundImage = this.isMoving ? "url('assets/enano-camina.png')" : "url('assets/enano-estatico.png')";
+      }
+    }
+
+    if (this.spriteData) {
+      this.animTime += delta;
+      // Walking is 20fps (0.05), Idle is slower at 10fps (0.1)
+      const frameDuration = this.isMoving ? 0.05 : 0.1;
+      
+      if (this.animTime > frameDuration) { 
+        this.animTime = 0;
+        const totalFrames = this.spriteData.meta.clips[0].frames.length;
+        this.currentFrame = (this.currentFrame + 1) % totalFrames;
+      }
     }
 
     this.#resolveCollision(dirx, diry);
@@ -240,6 +253,8 @@ class CoinCollectorGame extends Game {
       loader.loadImage('tiles', 'assets/tiles.png'),
       loader.loadImage('hero',  'assets/enano-camina.png'),
       loader.loadJSON('hero-json', 'json-sprite/enano-camina.json'),
+      loader.loadImage('hero-idle', 'assets/enano-estatico.png'),
+      loader.loadJSON('hero-idle-json', 'json-sprite/enano-estatico.json'),
     ];
   }
 
