@@ -95,12 +95,16 @@ class Camera {
   follow(t) { this.target = t; t.screenX = this.width / 2; t.screenY = this.height / 2; }
   update() {
     if (!this.target) return;
-    this.#x = Math.max(0, Math.min(this.target.x - this.width  / 2, this.maxX));
-    this.#y = Math.max(0, Math.min(this.target.y - this.height / 2, this.maxY));
-    this.target.screenX = (this.target.x < this.width / 2 || this.target.x > this.maxX + this.width / 2)
-      ? this.target.x - this.#x : this.width  / 2;
-    this.target.screenY = (this.target.y < this.height / 2 || this.target.y > this.maxY + this.height / 2)
-      ? this.target.y - this.#y : this.height / 2;
+    const targetCamX = Math.max(0, Math.min(this.target.x - this.width  / 2, this.maxX));
+    const targetCamY = Math.max(0, Math.min(this.target.y - this.height / 2, this.maxY));
+    
+    // Smooth camera lerp
+    this.#x += (targetCamX - this.#x) * 0.1;
+    this.#y += (targetCamY - this.#y) * 0.1;
+
+    // Screen position is always relative to the current camera position
+    this.target.screenX = this.target.x - this.#x;
+    this.target.screenY = this.target.y - this.#y;
   }
 }
 
