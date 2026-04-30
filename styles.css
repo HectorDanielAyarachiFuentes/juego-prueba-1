@@ -209,11 +209,10 @@ canvas {
 }
 
 .hero-sprite {
-    background-image: url('assets/character.png');
-    background-size: 100% 100%;
-    width: 48px; height: 48px;
-    margin-left: -24px; /* Center alignment X */
-    margin-top: -24px;  /* Center alignment Y */
+    background-image: url('assets/enano-camina.png');
+    width: 64px; height: 64px;
+    margin-left: -32px; /* Center alignment X */
+    margin-top: -32px;  /* Center alignment Y */
 }
 
 .main-footer {

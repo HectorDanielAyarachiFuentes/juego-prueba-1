@@ -17,7 +17,20 @@ class Loader {
     });
   }
 
+  loadJSON(key, src) {
+    return fetch(src)
+      .then(res => res.json())
+      .then(data => {
+        this.#images[key] = data; // store in same cache or a separate one
+        return data;
+      });
+  }
+
   getImage(key) {
+    return this.#images[key] ?? null;
+  }
+  
+  getJSON(key) {
     return this.#images[key] ?? null;
   }
 }

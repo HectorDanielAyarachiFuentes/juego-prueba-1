@@ -120,12 +120,32 @@ class Hero {
     this.screenY = 0;
     this.speed = 256; // px per second
     this.image = loader.getImage('hero');
+    this.spriteData = loader.getJSON('hero-json');
+    this.animTime = 0;
+    this.currentFrame = 0;
+    this.isMoving = false;
+    this.flipX = false;
   }
 
   move(delta, dirx, diry) {
     // move hero
     this.x += dirx * this.speed * delta;
     this.y += diry * this.speed * delta;
+    
+    this.isMoving = (dirx !== 0 || diry !== 0);
+    if (dirx < 0) this.flipX = false;
+    else if (dirx > 0) this.flipX = true;
+
+    if (this.isMoving) {
+      this.animTime += delta;
+      if (this.animTime > 0.05) { // 20 fps
+        this.animTime = 0;
+        this.currentFrame = (this.currentFrame + 1) % 36; // 36 frames
+      }
+    } else {
+      this.currentFrame = 0;
+    }
+
     this.#resolveCollision(dirx, diry);
     this.x = Math.max(0, Math.min(this.x, this.map.cols * this.map.tsize));
     this.y = Math.max(0, Math.min(this.y, this.map.rows * this.map.tsize));
@@ -214,7 +234,8 @@ class CoinCollectorGame extends Game {
   load() {
     return [
       loader.loadImage('tiles', 'assets/tiles.png'),
-      loader.loadImage('hero',  'assets/character.png'),
+      loader.loadImage('hero',  'assets/enano-camina.png'),
+      loader.loadJSON('hero-json', 'json-sprite/enano-camina.json'),
     ];
   }
 
@@ -350,7 +371,23 @@ class CoinCollectorGame extends Game {
 
     const hx = this.#hero.screenX;
     const hy = this.#hero.screenY;
-    this.#hero.el.style.transform = `translate(${hx}px, ${hy}px) var(--sprite-rot)`;
+    
+    if (this.#hero.spriteData) {
+      const frames = this.#hero.spriteData.frames;
+      const frameKey = "sprite_" + this.#hero.currentFrame;
+      if (frames[frameKey]) {
+        const frame = frames[frameKey].frame;
+        const bgSizeW = (this.#hero.spriteData.meta.size.w / frame.w) * 100;
+        const bgSizeH = (this.#hero.spriteData.meta.size.h / frame.h) * 100;
+        this.#hero.el.style.backgroundSize = `${bgSizeW}% ${bgSizeH}%`;
+        const posX = (frame.x / frame.w) * 64;
+        const posY = (frame.y / frame.h) * 64;
+        this.#hero.el.style.backgroundPosition = `-${posX}px -${posY}px`;
+      }
+    }
+    
+    const scaleX = this.#hero.flipX ? -1 : 1;
+    this.#hero.el.style.transform = `translate(${hx}px, ${hy}px) var(--sprite-rot) scaleX(${scaleX})`;
     this.#hero.el.style.zIndex = Math.floor(this.#hero.y);
   }
 
